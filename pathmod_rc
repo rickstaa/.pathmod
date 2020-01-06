@@ -1,0 +1,438 @@
+#!/usr/bin/env bash
+## -- PATHMOD bash wrapper --
+# This scripts adds easy PATH modification functionality to the bash shell.
+
+# TODO: Add readme
+# TODO: ADD license
+# TODO: ADD install script
+
+# Add Global variables
+PROGNAME="pathmod"
+path_export=true
+
+# Unset previoussly set functions and aliases
+unset -f _usage
+unset -f _add_path
+unset -f _remove_path
+unset -f _path_exists
+unset -f _pathmod_wrapper
+unset -f _cmdline
+
+# Bash echo colors
+ORANGE='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+_list_settings() {
+	# List current settings and paths
+
+    # Split path into array 
+	path_tmp=($(echo $PATH | tr ":" "\n"))
+	for ((i=0;i<${#path_tmp[@]};i++)); do     path_tmp[i]=" - [$i] ${path_tmp[i]}"; done
+	pythonpath_tmp=($(echo $PYTHONPATH | tr ":" "\n"))
+	for ((i=0;i<${#pythonpath_tmp[@]};i++)); do     pythonpath_tmp[i]=" - [$i] ${pythonpath_tmp[i]}"; done
+
+	# Script that prints the current pathmod settings
+	cat <<- EOF
+	current settings and values: $PROGNAME
+
+	SETTINGS:
+	   - Path export: $path_export
+
+	PATH:
+	$(printf "%s\n" "${path_tmp[@]}")
+
+	PYTHONPATH:
+	$(printf "%s\n" "${pythonpath_tmp[@]}")
+	EOF
+}
+
+_usage() {
+	# Script that prints usage information
+	cat <<- EOF
+	usage: $PROGNAME options
+
+	Program enables you to easily check, add and remove paths from the \$PATH enviromental variable.
+
+	OPTIONS:
+	   -a  --add                 add path(s) to \$PATH
+	   -i  --index               index where to add the path(s) (OPTIONAL: 0=start, -1=end, defaults to -1)
+	   -r  --remove              remove path(s) from \$PATH
+	   -c  --check               checks if path exists in \$PATH
+	   -h  --help                show this help
+	   -p  --pythonpath          modify \$PYTHONPATH instead of \$PATH
+	   -s  --settings            list pathmod settings and the current PATH and PYTHONPATH
+	   -se --set-export          export path after it is set (OPTIONAL, defaults to true)
+
+	NOTE:
+	   Each option only accepts one argument at the same tome. To add, remove or check multiple
+	   paths please use the colon seperator (example: $PROGNAME --<OPTION> "<PATH1>:<PATH2>").
+
+	Examples:
+	   Add path to \$PATH variable:
+	   $PROGNAME --add <PATH>
+
+	   Remove path from \$PATH variable:
+	   $PROGNAME --remove <PATH>
+
+	   Check if path exists in \$PATH varible:
+	   $PROGNAME --exists <PATH>
+
+	   Add path from \$PYTHONPATH variable:
+	   $PROGNAME --pythonpath --add <PATH>
+	EOF
+}
+
+_add_path() {
+	# Adds a path to the PATH variable
+
+	# Create local arrays
+	local added=()
+	local not_added=()
+
+	# Split paths by deliminator
+	local paths_array=($(echo $@ | tr ":" "\n"))
+
+	# Check if index is within range
+	local new_path=($(echo $PATH | tr ":" "\n")) # Split path into array 
+	local arr_len=${#new_path}
+	if [[ $path_add_index -lt -1 ]]; then
+		path_add_index=0
+	elif [[ $path_add_index -gt $arr_len ]]; then
+		path_add_index=-1
+	fi
+
+	# Loop through paths and add them if do not yet exist
+	for (( i=${#paths_array[@]}-1 ; i>=0 ; i-- )) ; do
+
+			# Check if path exists
+			if [[ ":$PATH:" != *":${paths_array[i]}:"* ]]; then
+
+				# Add path to PATH variable
+				if [[ "$path_add_index" == -1 ]]; then
+
+					# Append to PATH variable
+					PATH="${PATH:+${PATH}:}${paths_array[i]}" 
+				elif [[ "$path_add_index" == 0 ]]; then
+					
+					# Prepent to PATH variable
+					PATH="${paths_array[i]}${PATH:+:${PATH}}" 
+				else
+
+					# Add path to PATH variable at index
+					new_path=( "${new_path[@]:0:$path_add_index}" ${paths_array[i]} "${new_path[@]:$path_add_index:${#arr_len[@]}}" )
+				fi
+
+				# The directory is added on the path
+				added+=(${paths_array[i]})
+			else
+				# The directory was already on the path and thus not added
+				not_added+=(${paths_array[i]})
+			fi
+	done
+
+	# Convert PATH array back to string
+	if ! [[ "$path_add_index" == -1 ]] && ! [[ "$path_add_index" == 0 ]]; then
+		new_path=$( IFS=$':'; echo "${new_path[*]}" ) # Converting bash array into a delimited string
+		PATH=$new_path
+	fi
+
+	# Prepent - to added and not_added arrays
+	added=( "${added[@]/#/" - "}" )
+	not_added=( "${not_added[@]/#/" - "}" )
+
+	# Print result
+	printf "results: %s\n\n" "$PROGNAME"
+	if ! [[ ${#added[@]} -eq 0 ]]; then
+		if [[ $path_add_index -eq 0 ]]; then
+			printf "Paths that were succesfully prepended to the PATH variable:\n"
+			printf '%s\n' "${added[@]}"
+		elif [[ $path_add_index -eq -1 ]]; then
+			printf "Paths that were succesfully appended to the PATH variable:\n"
+			printf '%s\n' "${added[@]}"
+		else
+			printf "Paths that were succesfully added to index $path_add_index of the PATH variable:\n"
+			printf '%s\n' "${added[@]}"
+		fi
+	fi
+	if ! [[ ${#not_added[@]} -eq 0 ]]; then
+		printf "Paths that were already found on the PATH variable and were thus not added:\n"
+		printf '%s\n' "${not_added[@]}"
+	fi
+
+	# Export path such that it gets passed on to child processes
+	if [[ "$path_export" == "true" ]]; then
+		printf "$PROGNAME: Path variable exported.\n"
+		export PATH
+	fi
+}
+
+_remove_path() {
+	# Removes a path from the PATH variable
+
+	# Create local arrays
+	local found=()
+	local not_found=()
+
+	# Split path by deliminator
+	local paths_array=($(echo $@ | tr ":" "\n"))
+	
+	## Remove paths from PATH
+	# Loop through paths and remove them if they exist
+	# Delete path by parts so we can never accidentally remove sub paths
+	for i in "${paths_array[@]}"; do
+		if [[ :$PATH: == *:"$i":* ]]  ; then
+
+			# Remove all occurances from PATH variable
+			while [[ :$PATH: == *:"$i":* ]] ; do 
+				# Remove path from PATH variable
+				PATH=${PATH//":$i:"/":"} # delete any instances in the middle
+				PATH=${PATH/#"$i:"/} # delete any instance at the beginning
+				PATH=${PATH/%":$i"/} # delete any instance in the at the end
+			done
+			
+			# The directory was on the path and is thus removed
+			found+=($i)
+
+		else
+			# The directory was not on the path so can could not be removed
+			not_found+=($i)
+		fi
+	done
+
+	# Prepent - to found and not_found arrays
+	found=( "${found[@]/#/" -"}" )
+	not_found=( "${not_found[@]/#/" -"}" )
+
+	# Print result
+	printf "results: %s\n\n" "$PROGNAME"
+	if ! [[ ${#found[@]} -eq 0 ]]; then
+		printf "Paths that were succesfully removed from the PATH variable:\n"
+		printf '%s\n' "${found[@]}"
+	fi
+	if ! [[ ${#not_found[@]} -eq 0 ]]; then
+		printf "Paths that were not found on the PATH variable and could not be removed:\n"
+		printf '%s\n' "${not_found[@]}"
+	fi
+
+	# Export path such that it gets passed on to child processes
+	if [[ "$path_export" == "true" ]]; then
+		printf "$PROGNAME:Path variable exported.\n"
+		export PATH
+	fi
+}
+
+_path_exists() {
+	# Checks if a path exists in the PATH variable
+
+	# Create local arrays
+	local found=()
+	local not_found=()
+
+	# Split path by deliminator
+	local paths_array=($(echo $@ | tr ":" "\n"))
+
+	# Loop through paths and check if they exist in $PATH
+	for i in "${paths_array[@]}"; do
+		if [[ :$PATH: == *:"$i":* ]] ; then
+
+			# O.K., the directory is on the path
+			found+=(" - "$i)
+		else
+
+			# The directory is not on the path
+			not_found+=(" - "$i)
+		fi
+	done
+
+	# Print result
+	printf "results: %s\n\n" "$PROGNAME"
+	if ! [[ ${#found[@]} -eq 0 ]]; then
+		printf "Paths that were found on the PATH variable:\n"
+		printf '%s\n' "${found[@]}"
+	fi
+	if ! [[ ${#not_found[@]} -eq 0 ]]; then
+		printf "Paths that were not found on the PATH variable:\n"
+		printf '%s\n' "${not_found[@]}"
+	fi
+}
+
+_cmdline() {
+	# Commmand line parser
+	# got this idea from here:
+	# http://kirk.webfinish.com/2009/10/bash-shell-script-to-use-getopts-with-gnu-style-long-positional-parameters/
+	local arg="$@"
+	local args=() # Make args variable local (needed since script is sourced)
+	OPTIND=1 # Reset OPTIND (Needed since the script is sourced)
+	local path_add_index=-1
+	local opt_a=false
+	local opt_i=false
+	local python_path=false
+
+	# Translate long options to short options
+	for arg
+	do
+		local delim=""
+		case "$arg" in
+			# Translate --gnu-long-options to -g (short options)
+			--add)         	   args="${args}-a ";;
+			--index)           args="${args}-i ";;
+			--remove)          args="${args}-r ";;
+			--check)           args="${args}-c ";;
+			--help)            args="${args}-h ";;
+			----pythonpath)    args="${args}-p ";;
+			-se)			   args="${args}-e ";;
+			--settings)		   args="${args}-s ";;
+			--set-export)      args="${args}-e ";;
+			#pass through anything else
+			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+				args="${args}${delim}${arg}${delim} ";;
+		esac
+	done
+
+	# Print help if no option was given
+	if [ $# -eq 0 ]
+  	then
+  	  	_usage
+		return 0
+	fi
+
+    #Reset the positional parameters to the short options
+    eval set -- $args
+
+	# Get options
+	# Check optional arguments
+	while getopts ":i:a:r:c:e:hsp" OPTION
+	do
+		case $OPTION in
+		i)
+			# Validate index
+			re='^-?[0-9]+$'
+			if ! [[ $OPTARG =~ $re ]] ; then
+				echo "$PROGNAME:${RED}error:${NC} Index is not a number" >&2
+			   	_usage
+			   	return 1
+			fi
+
+			# set index
+		 	path_add_index=$OPTARG
+			local opt_i=true
+			;;
+		h)
+		 	_usage
+			return 0
+			;;
+		p)
+			local python_path=true
+			;;
+		s)
+
+			# List settings
+			_list_settings
+			return 0
+			;;
+		e)
+			# Check input value and change export settings
+			case $OPTARG in
+				"true"|"True"|"TRUE"|1)
+
+					# Set path export variable to true
+					if [[ $path_export == true ]]; then
+						printf "%s: path_export boolean already set to true.\n" "$PROGNAME"
+					else
+						printf "%s: path_export boolean set to true.\n" "$PROGNAME"
+						path_export=true
+					fi
+					;;	
+				"false"|"False"|"FALSE"|0)
+
+					# Set path export variable to false					
+					if [[ $path_export == false ]]; then
+						printf "%s: path_export boolean alreadu set to false.\n" "$PROGNAME"
+					else
+						printf "%s: path_export boolean set to false.\n" "$PROGNAME"
+						path_export=false
+					fi
+					;;
+				*)
+					printf "%s: path_export boolean kept on %s since %s in not a valid value.\n" "$PROGNAME" "$path_export" "$OPTARG"
+					;;
+			esac
+			;;
+		:)
+		 	printf "$PROGNAME:${RED}error:${NC} option requires an argument -- %s\n" "$OPTARG"
+			_usage
+			return 1
+			;;
+		a)
+			;; # Pass to next getopt switch
+		r)
+			;; # Pass to next getopt switch
+		c)
+			;; # Pass to next getopt switch
+		?)
+			printf "$PROGNAME:${RED}error:${NC} invalid option was specified -%s\n" "$OPTARG"
+			_usage
+			return 1
+			;;
+		esac
+	done
+
+	# Check required arguments
+	unset OPTIND
+	while getopts ":i:a:r:c:e:hsp" OPTION
+	do
+		case $OPTION in
+		a)
+		 	# Add path
+			_add_path $OPTARG
+			opt_a=true
+			;;
+		r)
+			# Remove path
+			_remove_path $OPTARG
+			;;
+		c)
+			# Check if path exists
+		 	_path_exists $OPTARG
+			;;
+		:)
+		 	printf "$PROGNAME:${RED}error:${NC} option requires an argument -- %s\n" "$OPTARG"
+			_usage
+			return 1
+			;;
+		i)
+			;; # Already handled by first getopts switch
+		h)
+			;; # Already handled by first getopts switch
+		s)
+			;; # Already handled by first getopts switch
+		e)
+			;; # Already handled by first getopts switch
+		?)
+		 	printf "$PROGNAME:${RED}error:${NC} invalid option was specified -%s\n" "$OPTARG"
+			_usage
+			return 1
+			;;
+		esac
+	done
+
+	# Display warning if index was specified but no path was added or moved
+	if [[ $opt_i == true ]] && [[ $opt_a == false ]]; then
+		printf "%s:${ORANGE}warning:${NC} an index (-i) was given but was unused since no path was supplied to be added or moved. %s\n" "$PROGNAME"
+	fi
+}
+
+_pathmod_wrapper() {
+
+	# The pathmod script wrapper
+	_cmdline "$@"
+}
+
+####################################
+## Setup pathmod aliases ###########
+####################################
+
+## Create Conda alias to wrap Conda executable
+# alias pathmod='_pathmod_wrapper "$@"'
+_pathmod_wrapper $@
