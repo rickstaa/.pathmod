@@ -5,7 +5,7 @@
 # Add Global variables
 PROGNAME="pathmod"
 CONFIG_FILE_NAME="${HOME}/.pathmod_cfg"
-VERSION="0.0.0"
+VERSION="1.0.0"
 
 # Unset previoussly set functions and aliases
 unset -f _usage

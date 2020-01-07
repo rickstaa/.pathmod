@@ -66,8 +66,7 @@ The pathmod script takes the following commands:
 - `-sd --set-path-display`: Display PATH and PYTHONPATH after each command (OPTIONAL, defaults to false)
 - `-se --set-export`: Export path after it is set (OPTIONAL, defaults to true)
 
-NOTE:
-Each option only accepts one argument at the same time. To add, remove or check multiple paths please use the colon separator (example: `$PROGNAME --<OPTION> "<PATH1>:<PATH2>"`).
+:information_source: NOTE: Each option only accepts one argument at the same time. To add, remove or check multiple paths please use the colon separator (example: `$PROGNAME --<OPTION> "<PATH1>:<PATH2>"`).
 
 #### Examples:
     Add path to PATH variable:
@@ -75,16 +74,16 @@ Each option only accepts one argument at the same time. To add, remove or check 
     
     Add path to PATH at an index:
     $PROGNAME --add <PATH> --index <INDEX>
-    
+
     Remove path from PATH variable:
     $PROGNAME --remove <PATH>
-    
+
     Check if path exists in PATH varible:
     $PROGNAME --exists <PATH>
-    
+
     Move path to a given index:
     $PROGNAME --move <PATH> --index <INDEX>
-    
+
     Add path from PYTHONPATH variable:
     $PROGNAME --pythonpath --add <PATH>
 
