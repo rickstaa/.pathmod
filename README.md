@@ -1,17 +1,17 @@
 # Path modification bash script
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cabedb7d336540ef9db2a386e42217b2)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rickstaa/pathmod&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cabedb7d336540ef9db2a386e42217b2)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=rickstaa/pathmod&utm_campaign=Badge_Grade)
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/pathmod/pulse)
 [![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](contributing.md)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
 The pathmod bash script makes it easier to view and modify the PATH and PYTHONPATH environment variables. It comes with an easy command-line interface which allows you to:
 
-- Display the paths that are on the PATH and PYTHONPATH in a more readable format.
-- Check whether a path is on the PATH or PYTHON.
-- Delete a path from the PATH or PYTHONPATH.
-- Add a path from the PATH or PYTHONPATH.
-- Move a path to a different position in the PATH or PYTHONPATH.
+-   Display the paths that are on the PATH and PYTHONPATH in a more readable format.
+-   Check whether a path is on the PATH or PYTHON.
+-   Delete a path from the PATH or PYTHONPATH.
+-   Add a path from the PATH or PYTHONPATH.
+-   Move a path to a different position in the PATH or PYTHONPATH.
 
 ## How to setup
 
@@ -55,37 +55,40 @@ To uninstall the pathmod script run the `uninstall.sh` script before removing th
 
 The pathmod script takes the following commands:
 
-- `-a --add`: Add path(s) to the PATH or PYTHONPATH
-- `-i --index:` Specify the index where to add the path(s) (OPTIONAL: 0=start, -1=end, defaults to -1)
-- `-m --move`: Move a path to a given index (Adds path if not yet present.)
-- `-r --remove`: Remove path(s) from the PATH or PYTHONPATH
-- `-c --check`: Check if path exists in the PATH or PYTHONPATH
-- `-h --help`: Display help
-- `-p --pythonpath`: Modify PYTHONPATH instead of PATH
-- `-s --settings`: List pathmod settings and the current PATH and PYTHONPATH
-- `-sd --set-path-display`: Display PATH and PYTHONPATH after each command (OPTIONAL, defaults to false)
-- `-se --set-export`: Export path after it is set (OPTIONAL, defaults to true)
+-   `-a --add`: Add path(s) to the PATH or PYTHONPATH
+-   `-i --index:` Specify the index where to add the path(s) (OPTIONAL: 0=start, -1=end, defaults to -1)
+-   `-m --move`: Move a path to a given index (Adds path if not yet present.)
+-   `-r --remove`: Remove path(s) from the PATH or PYTHONPATH
+-   `-c --check`: Check if path exists in the PATH or PYTHONPATH
+-   `-h --help`: Display help
+-   `-p --pythonpath`: Modify PYTHONPATH instead of PATH
+-   `-s --settings`: List pathmod settings and the current PATH and PYTHONPATH
+-   `-sd --set-path-display`: Display PATH and PYTHONPATH after each command (OPTIONAL, defaults to false)
+-   `-se --set-export`: Export path after it is set (OPTIONAL, defaults to true)
 
-:information_source: NOTE: Each option only accepts one argument at the same time. To add, remove or check multiple paths please use the colon separator (example: `$PROGNAME --<OPTION> "<PATH1>:<PATH2>"`).
+:information_source: **NOTE:** Each option only accepts one argument at the same time. To add, remove or check multiple paths please use the colon separator (example: `$PROGNAME --<OPTION> "<PATH1>:<PATH2>"`).
 
-#### Examples:
-    Add path to PATH variable:
-    $PROGNAME --add <PATH>
-    
-    Add path to PATH at an index:
-    $PROGNAME --add <PATH> --index <INDEX>
+#### Examples
 
-    Remove path from PATH variable:
-    $PROGNAME --remove <PATH>
+```bash
+Add path to PATH variable:
+$PROGNAME --add <PATH>
 
-    Check if path exists in PATH varible:
-    $PROGNAME --exists <PATH>
+Add path to PATH at an index:
+$PROGNAME --add <PATH> --index <INDEX>
 
-    Move path to a given index:
-    $PROGNAME --move <PATH> --index <INDEX>
+Remove path from PATH variable:
+$PROGNAME --remove <PATH>
 
-    Add path from PYTHONPATH variable:
-    $PROGNAME --pythonpath --add <PATH>
+Check if path exists in PATH varible:
+$PROGNAME --exists <PATH>
+
+Move path to a given index:
+$PROGNAME --move <PATH> --index <INDEX>
+
+Add path from PYTHONPATH variable:
+$PROGNAME --pythonpath --add <PATH>
+```
 
 ## Contributing
 

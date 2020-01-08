@@ -7,20 +7,20 @@ exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is alrea
 
 # Create symbolic link to the .pathmod_rc file
 WRAPPER_NAME="pathmod_rc"
-WRAPPER_LINK="$(echo $HOME)/$WRAPPER_NAME"
-if [ -L ${WRAPPER_LINK} ]; then
-    if [ -e ${WRAPPER_LINK} ]; then
+WRAPPER_LINK="$(echo "$HOME")/$WRAPPER_NAME"
+if [ -L "${WRAPPER_LINK}" ]; then
+    if [ -e "${WRAPPER_LINK}" ]; then
         echo "Pathmod script already present in your home directory."
     else
         echo "Pathmod script added to your home directory."
-        ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/.$WRAPPER_NAME"
+        ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo "$HOME")/.$WRAPPER_NAME"
     fi
-elif [ -e ${WRAPPER_LINK} ]; then
+elif [ -e "${WRAPPER_LINK}" ]; then
     echo "Pathmod script added to your home directory."
-    ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/.$WRAPPER_NAME"
+    ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo "$HOME")/.$WRAPPER_NAME"
 else
     echo "Pathmod script added to your home directory."
-    ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/.$WRAPPER_NAME"
+    ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo "$HOME")/.$WRAPPER_NAME"
 fi
 
 # Append .pathmod_rc script source command to the .bashrc if it does not exist yet
