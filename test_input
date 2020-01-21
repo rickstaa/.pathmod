@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+arg="$@"
+arg_array=($arg)
+args=()
+for ii in "${!arg_array[@]}"
+do
+    delim=""
+    arg_tmp="${arg_array[$ii]}"
+    echo $arg_tmp
+    case "$arg_tmp" in
+        # Translate --gnu-long-options to -g (short options)
+        --add)         	      args="${args}-a ";;
+        --index)              args="${args}-i ";;
+        --move)               args="${args}-m ";;
+        --remove)             args="${args}-r ";;
+        --check)              args="${args}-c ";;
+        --help)               args="${args}-h ";;
+        --version)            args="${args}-v ";;
+        ----pythonpath)       args="${args}-p ";;
+        --settings)		      args="${args}-s ";;
+        -se)			      args="${args}-e ";;
+        --set-export)         args="${args}-e ";;
+        -sd)  				  args="${args}-d ";;
+        --set-path-display)   args="${args}-d ";;
+        -sg)                  args="${args}-g ";; 
+        --set-path-guard)     args="${args}-g ";;
+
+        # Add empty option after -r agument if not supplied
+        -r)
+            # [[ "${arg_tmp:0:1}" == "-" ]] || delim="\""
+            # args="${args}${delim}${arg_tmp}${delim} ";;
+            # Check if no option was supplied
+            next_index=$(($ii+1))
+            case "${arg_array[$next_index]}" in
+                -i|-j|-e|-a|-c|-d|-e|-g|-i|-m|-r|-h|-p|-s|-v)
+
+                    # Pass -r through
+                    [[ "${arg_tmp:0:1}" == "-" ]] || delim="\""
+                    args="${args}${delim}${arg_tmp}${delim} "
+
+                    # Add empty value indicator as argument
+                    args="${args}${delim}"'\O'"${delim} ";;
+                *)
+
+                    # Pass -r through
+                    [[ "${arg_tmp:0:1}" == "-" ]] || delim="\""
+                    args="${args}${delim}${arg_tmp}${delim} ";;
+            esac
+            ;;
+        # Pass through anything else
+        *) [[ "${arg_tmp:0:1}" == "-" ]] || delim="\""
+            args="${args}${delim}${arg_tmp}${delim} ";;
+    esac
+done
+
+echo "Output"
+echo $args
