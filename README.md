@@ -73,43 +73,46 @@ paths please use the colon (Example: `pathmod --<OPTION> <PATH1>:<PATH2>`) or sp
 
 #### Examples
 
-##### Add path to PATH variable:
+##### Add path to PATH variable
 
 ```bash
 pathmod --add <PATH>
 ```
 
-##### Add path to PATH at an index:
+##### Add path to PATH at an index
 
 ```bash
 pathmod --add <PATH> --index <INDEX>
 ```
 
-##### Remove path from PATH variable:
+##### Remove path from PATH variable
 
 ```bash
 pathmod --remove <PATH>
 pathmod --remove <INDEX>
 ```
 
-##### Check if path exists in PATH variable:
+##### Check if path exists in PATH variable
 
 ```bash
 pathmod --exists <PATH>
 ```
 
-##### Move path to a given index:
+##### Move path to a given index
 
 ```bash
 pathmod --move <PATH> --index <INDEX>
 pathmod --move <OLD_INDEX> --index <NEW_INDEX>
 ```
 
-##### Add path from PYTHONPATH variable:
+##### Add path from PYTHONPATH variable
 
 ```bash
 pathmod --pythonpath --add <PATH>
 ```
+## Issues
+
+Please feel free to open [an issue](https://github.com/rickstaa/.pathmod/issues) if you run into problems or have suggestions.
 
 ## Contributing
 
