@@ -5,7 +5,7 @@
 # Add Global variables
 PATHMOD_PROGNAME="pathmod"
 PATHMOD_CONFIG_FILE_NAME="${HOME}/.pathmod_cfg"
-PATHMOD_VERSION="1.0.0"
+PATHMOD_VERSION="1.0.1"
 
 # Unset previously set functions and aliases
 unset -f _pathmod_load_config_vars 2> /dev/null
