@@ -3,7 +3,7 @@
 # Check if wrapper does already exists
 start_str="# >>> pathmod initialize >>>"
 end_str="# <<< pathmod initialize <<<"
-exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is already present
+exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if pattern is already present
 
 # Create symbolic link to the .pathmod_rc file
 WRAPPER_NAME="pathmod_rc"

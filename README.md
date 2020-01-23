@@ -62,32 +62,53 @@ The pathmod script takes the following commands:
 -   `-c --check`: Check if path exists in the PATH or PYTHONPATH
 -   `-h --help`: Display help
 -   `-p --pythonpath`: Modify PYTHONPATH instead of PATH
+-   `-v, --version`: Show pathmod version
 -   `-s --settings`: List pathmod settings and the current PATH and PYTHONPATH
 -   `-sd --set-path-display`: Display PATH and PYTHONPATH after each command (OPTIONAL, defaults to false)
 -   `-se --set-export`: Export path after it is set (OPTIONAL, defaults to true)
+-   `-sg --set-path-guard`: Check whether a path is valid before adding it (OPTIONAL, defaults to false)
 
-:information_source: **NOTE:** Each option only accepts one argument at the same time. To add, remove or check multiple paths please use the colon separator (example: `$PROGNAME --<OPTION> "<PATH1>:<PATH2>"`).
+:information_source: **NOTE:** Each option only accepts one argument at the same time. To add, remove or check multiple
+paths please use the colon (Example: `pathmod --<OPTION> <PATH1>:<PATH2>`) or space separator (Example: `pathmod --<OPTION> "<PATH1> <PATH2>"`).
 
 #### Examples
 
+##### Add path to PATH variable:
+
 ```bash
-Add path to PATH variable:
-$PROGNAME --add <PATH>
+pathmod --add <PATH>
+```
 
-Add path to PATH at an index:
-$PROGNAME --add <PATH> --index <INDEX>
+##### Add path to PATH at an index:
 
-Remove path from PATH variable:
-$PROGNAME --remove <PATH>
+```bash
+pathmod --add <PATH> --index <INDEX>
+```
 
-Check if path exists in PATH varible:
-$PROGNAME --exists <PATH>
+##### Remove path from PATH variable:
 
-Move path to a given index:
-$PROGNAME --move <PATH> --index <INDEX>
+```bash
+pathmod --remove <PATH>
+pathmod --remove <INDEX>
+```
 
-Add path from PYTHONPATH variable:
-$PROGNAME --pythonpath --add <PATH>
+##### Check if path exists in PATH variable:
+
+```bash
+pathmod --exists <PATH>
+```
+
+##### Move path to a given index:
+
+```bash
+pathmod --move <PATH> --index <INDEX>
+pathmod --move <OLD_INDEX> --index <NEW_INDEX>
+```
+
+##### Add path from PYTHONPATH variable:
+
+```bash
+pathmod --pythonpath --add <PATH>
 ```
 
 ## Contributing

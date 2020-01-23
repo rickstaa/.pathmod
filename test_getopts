@@ -1,0 +1,56 @@
+arg="$@"
+
+# Translate long options to short options
+for arg
+do
+    delim=""
+    case "$arg" in
+        #pass through anything else
+        *) 
+            # Escape options that do not begin with -
+            [[ "${arg:0:1}" == "-"  ]] || delim="\""
+
+            # Pass through anything else
+            args="${args}${delim}${arg}${delim} "
+            ;;
+    esac
+done
+
+# Reset the positional parameters to the short options
+eval set -- "$args"
+
+# Check dependent and setting related options.
+while getopts ":d:i:h" OPTION
+do
+    case "$OPTION" in
+    d)
+        case "$OPTARG" in
+            -i|-j)
+                break
+                ;;
+            *)
+                echo "$OPTARG"
+                ;;
+        esac
+        ;;
+
+    i)
+        echo "$OPTARG"
+        ;;
+    j)
+        echo "$OPTARG"
+        ;;
+    h)
+        echo "help"
+        ;;
+    :)	
+        # Throw no argument given error
+        printf "$PATHMOD_PROGNAME:${RED}error:${NC} option requires an argument -- %s\n" "$OPTARG"
+        # _pathmod_usage
+        ;;
+    ?)
+        printf "$PATHMOD_PROGNAME:${RED}error:${NC} invalid option was specified -%s\n" "$OPTARG"
+        # _pathmod_usage
+        ;;
+    esac
+done

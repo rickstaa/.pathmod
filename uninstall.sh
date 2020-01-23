@@ -3,7 +3,7 @@
 # Remove .pathmod_rc initiation from .bashrc
 start_str="# >>> pathmod initialize >>>"
 end_str="# <<< pathmod initialize <<<"
-exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is already present
+exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if pattern is already present
 
 # REmove symbolic link to the .pathmod_rcfile
 WRAPPER_NAME="pathmod_rc"
