@@ -5,7 +5,7 @@
 # Add Global variables
 PATHMOD_PROGNAME="pathmod"
 PATHMOD_CONFIG_FILE_NAME="${HOME}/.pathmod_cfg"
-PATHMOD_VERSION="1.0.1"
+PATHMOD_VERSION="1.0.2"
 
 # Unset previously set functions and aliases
 unset -f _pathmod_load_config_vars 2> /dev/null
@@ -154,6 +154,7 @@ _pathmod_usage() {
 	   -m  --move                move a path to a given index (Adds path if not yet present.)
 	   -r  --remove              remove path(s) from the PATH or PYTHONPATH
 	   -c  --check               check if path exists in the PATH or PYTHONPATH
+	   -e  --expand-path         outputs the absolute path of rel_path relative to relative_to or the current directory
 	   -h  --help                show this help
 	   -v, --version             show pathmod version
 	   -p  --pythonpath          modify PYTHONPATH instead of PATH
@@ -850,8 +851,8 @@ _pathmod_cmdline() {
 			--help)              args="${args}-h ";;
 			----pythonpath)      args="${args}-p ";;
 			--settings)		     args="${args}-s ";;
-			-se)			     args="${args}-e ";;
-			--set-export)        args="${args}-e ";;
+			-se)			     args="${args}-z ";;
+			--set-export)        args="${args}-z ";;
 			-sd)  				 args="${args}-d ";;
 			--set-path-display)  args="${args}-d ";;
 			#pass through anything else
@@ -877,7 +878,7 @@ _pathmod_cmdline() {
 
 	# -- First argument parser --
 	# Check dependent and setting related options.
-	while getopts ":a:c:d:e:g:i:m:r:hpsv" OPTION
+	while getopts ":a:c:d:e:g:i:m:r:z:hpsv" OPTION
 	do
 		case "$OPTION" in
 		d)
@@ -916,41 +917,15 @@ _pathmod_cmdline() {
 			# Save values to config file
 			_pathmod_save_config_vars
 			;;
-		e)
-
-			# Check if GETARG is option
-			_pathmod_getarg_validate "$OPTARG"
-			if [[ "$?" -eq 1 ]]; then return 1; fi
-
-			# Check input value and change export settings
-			case "$OPTARG" in
-				"true"|"True"|"TRUE"|1)
-
-					# Set path export variable to true
-					if [[ "$path_export" == true ]]; then
-						printf "%s: path_export boolean already set to true.\n" "$PATHMOD_PROGNAME"
-					else
-						printf "%s: path_export boolean set to true.\n" "$PATHMOD_PROGNAME"
-						path_export=true
-					fi
-					;;	
-				"false"|"False"|"FALSE"|0)
-
-					# Set path export variable to false					
-					if [[ "$path_export" == false ]]; then
-						printf "%s: path_export boolean already set to false.\n" "$PATHMOD_PROGNAME"
-					else
-						printf "%s: path_export boolean set to false.\n" "$PATHMOD_PROGNAME"
-						path_export=false
-					fi
-					;;
-				*)
-					printf "%s: path_export boolean kept on %s since %s in not a valid value.\n" "$PATHMOD_PROGNAME" "$path_export" "$OPTARG"
-					;;
-			esac
-
-			# Save values to config file
-			_pathmod_save_config_vars
+		e)	
+			# Get absolute path and check if it exists
+			abs_path=$(cd $(dirname "$OPTARG") && pwd -P)/$(basename "$OPTARG")
+			if [[ -e "$abs_path" ]]; then
+				echo "$abs_path"
+			else
+				printf "File \"%s\" does not exist in path \"%s\".\n" "$OPTARG" "$PWD"
+			fi
+			return 0
 			;;
 		g)
 
@@ -1052,6 +1027,41 @@ _pathmod_cmdline() {
 			echo "v$PATHMOD_VERSION"
 			return 0
 			;;
+		z)
+			# Check if GETARG is option
+			_pathmod_getarg_validate "$OPTARG"
+			if [[ "$?" -eq 1 ]]; then return 1; fi
+
+			# Check input value and change export settings
+			case "$OPTARG" in
+				"true"|"True"|"TRUE"|1)
+
+					# Set path export variable to true
+					if [[ "$path_export" == true ]]; then
+						printf "%s: path_export boolean already set to true.\n" "$PATHMOD_PROGNAME"
+					else
+						printf "%s: path_export boolean set to true.\n" "$PATHMOD_PROGNAME"
+						path_export=true
+					fi
+					;;	
+				"false"|"False"|"FALSE"|0)
+
+					# Set path export variable to false					
+					if [[ "$path_export" == false ]]; then
+						printf "%s: path_export boolean already set to false.\n" "$PATHMOD_PROGNAME"
+					else
+						printf "%s: path_export boolean set to false.\n" "$PATHMOD_PROGNAME"
+						path_export=false
+					fi
+					;;
+				*)
+					printf "%s: path_export boolean kept on %s since %s in not a valid value.\n" "$PATHMOD_PROGNAME" "$path_export" "$OPTARG"
+					;;
+			esac
+
+			# Save values to config file
+			_pathmod_save_config_vars
+			;;
 		a)
 
 			# Check if GETARG is option
@@ -1114,7 +1124,7 @@ _pathmod_cmdline() {
 	# -- First argument parser --
 	# Check independent options and perform path modification actions.
 	unset OPTIND # Needed since we source the script
-	while getopts ":a:c:d:e:g:i:m:r:hpsv" OPTION
+	while getopts ":a:c:d:e:g:i:m:r:z:hpsv" OPTION
 	do 
 		case "$OPTION" in
 		a)
@@ -1170,6 +1180,8 @@ _pathmod_cmdline() {
 		s)
 			;; # Already handled by first getopts switch
 		v)
+			;; # Already handled by first getopts switch
+		z)
 			;; # Already handled by first getopts switch
 		:)	
 			# Catch options that can have an empty argument if an index is specified
