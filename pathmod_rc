@@ -5,7 +5,7 @@
 # Add Global variables
 PATHMOD_PROGNAME="pathmod"
 PATHMOD_CONFIG_FILE_NAME="${HOME}/.pathmod_cfg"
-PATHMOD_VERSION="1.0.2"
+PATHMOD_VERSION="1.0.3"
 
 # Unset previously set functions and aliases
 unset -f _pathmod_load_config_vars 2> /dev/null
@@ -1241,7 +1241,6 @@ _pathmod_main(){
 	_pathmod_load_config_vars
 
 	# Create pathmod alias
-	# _pathmod_wrapper -p -r 0
 	alias pathmod='_pathmod_wrapper'
 }
 
