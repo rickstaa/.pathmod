@@ -550,9 +550,10 @@ _pathmod_remove_path() {
 				while [[ ":$PATH:" == *:"$path":* ]] ; do 
 
 					# Remove path from PATH variable
-					PATH=${PATH//":$path:"/":"} # delete any instances in the middle
-					PATH=${PATH/#"$path:"/} # delete any instance at the beginning
-					PATH=${PATH/%":$path"/} # delete any instance in the at the end
+					PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+					PATH=${PATH//"${path}"/} # delete any instance if it is the only one present in the path
+					PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+					PATH=${PATH/%":${path}"/} # delete any instance in the at the end
 				done
 				
 				# The directory was on the path and is thus removed
@@ -567,7 +568,7 @@ _pathmod_remove_path() {
 			fi
 		done
 	else # Remove from PYTHONPATH
-		local path_type="PATH"
+		local path_type="PYTHONPATH"
 
 		# Loop through remove paths
 		for ii in "${!remove_paths_array[@]}"; do
@@ -578,9 +579,10 @@ _pathmod_remove_path() {
 				while [[ ":$PYTHONPATH:" == *:"$path":* ]] ; do 
 
 					# Remove path from PATH variable
-					PYTHONPATH=${PYTHONPATH//":$path:"/":"} # delete any instances in the middle
-					PYTHONPATH=${PYTHONPATH/#"$path:"/} # delete any instance at the beginning
-					PYTHONPATH=${PYTHONPATH/%":$path"/} # delete any instance in the at the end
+					PYTHONPATH=${PYTHONPATH//":${path}:"/":"} # delete any instances in the middle
+					PYTHONPATH=${PYTHONPATH//"${path}"/} # delete any instance if it is the only one present in the path
+					PYTHONPATH=${PYTHONPATH/#"${path}:"/} # delete any instance at the beginning
+					PYTHONPATH=${PYTHONPATH/%":${path}"/} # delete any instance in the at the end
 				done
 				
 				# The directory was on the path and is thus removed
@@ -1239,7 +1241,7 @@ _pathmod_main(){
 	_pathmod_load_config_vars
 
 	# Create pathmod alias
-	# _pathmod_wrapper -a -i "5"
+	# _pathmod_wrapper -p -r 0
 	alias pathmod='_pathmod_wrapper'
 }
 
