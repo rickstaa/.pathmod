@@ -5,7 +5,7 @@
 # Add Global variables
 PATHMOD_PROGNAME="pathmod"
 PATHMOD_CONFIG_FILE_NAME="${HOME}/.pathmod_cfg"
-PATHMOD_VERSION="1.0.3"
+PATHMOD_VERSION="1.0.4"
 
 # Unset previously set functions and aliases
 unset -f _pathmod_load_config_vars 2> /dev/null
@@ -550,10 +550,13 @@ _pathmod_remove_path() {
 				while [[ ":$PATH:" == *:"$path":* ]] ; do 
 
 					# Remove path from PATH variable
-					PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
-					PATH=${PATH//"${path}"/} # delete any instance if it is the only one present in the path
-					PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
-					PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+					if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
+						PATH=${PATH//"${path}"/} # delete instance
+					else
+						PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+						PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+						PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+					fi
 				done
 				
 				# The directory was on the path and is thus removed
@@ -579,10 +582,13 @@ _pathmod_remove_path() {
 				while [[ ":$PYTHONPATH:" == *:"$path":* ]] ; do 
 
 					# Remove path from PATH variable
-					PYTHONPATH=${PYTHONPATH//":${path}:"/":"} # delete any instances in the middle
-					PYTHONPATH=${PYTHONPATH//"${path}"/} # delete any instance if it is the only one present in the path
-					PYTHONPATH=${PYTHONPATH/#"${path}:"/} # delete any instance at the beginning
-					PYTHONPATH=${PYTHONPATH/%":${path}"/} # delete any instance in the at the end
+					if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
+						PYTHONPATH=${PYTHONPATH//"${path}"/} # delete instance
+					else
+						PYTHONPATH=${PYTHONPATH//":${path}:"/":"} # delete any instances in the middle
+						PYTHONPATH=${PYTHONPATH/#"${path}:"/} # delete any instance at the beginning
+						PYTHONPATH=${PYTHONPATH/%":${path}"/} # delete any instance in the at the end
+					fi
 				done
 				
 				# The directory was on the path and is thus removed
@@ -921,7 +927,7 @@ _pathmod_cmdline() {
 			;;
 		e)	
 			# Get absolute path and check if it exists
-			abs_path=$(cd $(dirname "$OPTARG") && pwd -P)/$(basename "$OPTARG")
+			abs_path=$(cd $(dirname "$OPTARG") 2>/dev/null && pwd -P)/$(basename "$OPTARG")
 			if [[ -e "$abs_path" ]]; then
 				echo "$abs_path"
 			else
