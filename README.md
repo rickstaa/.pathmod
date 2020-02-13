@@ -21,7 +21,7 @@ The pathmod bash script makes it easier to view and modify the PATH and PYTHONPA
 
     ```bash
     git clone https://github.com/rickstaa/.pathmod.git
-    cd .ros_conda_wrapper
+    cd .pathmod
     ```
 
 2.  Run the `install.sh` script to install the ROS Conda wrapper.
