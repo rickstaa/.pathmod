@@ -5,6 +5,9 @@ start_str="# >>> pathmod initialize >>>"
 end_str="# <<< pathmod initialize <<<"
 exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if pattern is already present
 
+# Install welcome message
+echo "-- Installing the pathmod script --"
+
 # Create symbolic link to the .pathmod_rc file
 WRAPPER_NAME="pathmod_rc"
 WRAPPER_LINK="$(echo "$HOME")/$WRAPPER_NAME"
@@ -39,3 +42,8 @@ EOL
 else
     echo "Pathmod alias already installed to your .bashrc file."
 fi
+
+# Installer close messages
+echo "Pathmod script successfully installed."
+printf "\n"
+echo "For this change to become active, you have to open a new terminal."

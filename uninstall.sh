@@ -5,7 +5,10 @@ start_str="# >>> pathmod initialize >>>"
 end_str="# <<< pathmod initialize <<<"
 exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if pattern is already present
 
-# REmove symbolic link to the .pathmod_rcfile
+# Remove welcome message
+echo "-- Removing the pathmod script --"
+
+# Remove symbolic link to the .pathmod_rcfile
 WRAPPER_NAME="pathmod_rc"
 WRAPPER_LINK="$(echo "$HOME")/$WRAPPER_NAME"
 if [ -L "${WRAPPER_LINK}" ]; then
@@ -30,3 +33,8 @@ else
     sed --follow-symlinks -e '${/^$/d;}' -i ~/.bashrc # Remove empty line if present
     echo "Pathmod script succesfully removed from your .bashrc file."
 fi
+
+# Installer close messages
+echo "Pathmod script successfully removed."
+printf "\n"
+echo "For this change to become active, you have to open a new terminal."
