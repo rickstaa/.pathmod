@@ -5,6 +5,7 @@
 [![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](contributing.md)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
+<img src="https://raw.githubusercontent.com/rickstaa/.pathmod/master/assets/icons/pathmod_icon.svg?raw=true" width="200">
 The pathmod bash script makes it easier to view and modify the PATH and PYTHONPATH environment variables. It comes with an easy command-line interface which allows you to:
 
 -   Display the paths that are on the PATH and PYTHONPATH in a more readable format.
