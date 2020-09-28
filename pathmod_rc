@@ -34,7 +34,7 @@ _pathmod_load_config_vars() {
 		# Read variables from file
 		while IFS="=" read -r key val; do
 			case "$key" in
-				'#'*) 
+				'#'*)
 					;; # Skip comments
 				'path_export'|'path_display'|'path_guard')
 					eval "$key=\"$val\""
@@ -45,7 +45,7 @@ _pathmod_load_config_vars() {
 		# Parse variables to make sure they are alright
 		case "$path_export" in
 			"true"|"True"|"TRUE"|"false"|"False"|"FALSE")
-				;;	
+				;;
 			*)
 				# Value was not valid set to default
 				path_export=true
@@ -53,7 +53,7 @@ _pathmod_load_config_vars() {
 		esac
 		case "$path_display" in
 			"true"|"True"|"TRUE"|"false"|"False"|"FALSE")
-				;;	
+				;;
 			*)
 				# Value was not valid set to default
 				path_export=false
@@ -61,7 +61,7 @@ _pathmod_load_config_vars() {
 		esac
 		case "$path_guard" in
 			"true"|"True"|"TRUE"|"false"|"False"|"FALSE")
-				;;	
+				;;
 			*)
 				# Value was not valid set to default
 				path_guard=false
@@ -70,7 +70,7 @@ _pathmod_load_config_vars() {
 	else
 
 		# Create file
-		{ 
+		{
 		cat > "$PATHMOD_CONFIG_FILE_NAME" <<- EOL
 		# Pathnmod settings
 		path_export=true
@@ -78,7 +78,7 @@ _pathmod_load_config_vars() {
 		path_guard=false
 		EOL
 		} || {
-			printf "%s:${ORANGE}warning:${NC} Configuration file could not be loaded. Default values were used instead. %s\n" "$PATHMOD_PROGNAME"		
+			printf "%s:${ORANGE}warning:${NC} Configuration file could not be loaded. Default values were used instead. %s\n" "$PATHMOD_PROGNAME"
 		}
 
 		# Use defaults
@@ -100,7 +100,7 @@ _pathmod_save_config_vars() {
 	path_guard=$path_guard
 	EOL
 	} || {
-		printf "%s:${ORANGE}warning:${NC} Pathmod configuration values could not be saved. %s\n" "$PATHMOD_PROGNAME"		
+		printf "%s:${ORANGE}warning:${NC} Pathmod configuration values could not be saved. %s\n" "$PATHMOD_PROGNAME"
 	}
 }
 
@@ -124,11 +124,11 @@ _list_path() {
 	# Split PATH and PYTHONPATH into array
 	local defaultIFS="$IFS"; IFS=$' \t\n'; local path_tmp=(${PATH//:/ }); IFS="$defaultIFS"
 	local defaultIFS="$IFS"; IFS=$' \t\n'; local pythonpath_tmp=(${PYTHONPATH//:/ }); IFS="$defaultIFS"
-	
+
 	# Prepend array row number
 	for ((ii=0;ii<${#path_tmp[@]};ii++)); do     path_tmp[ii]=" - [$ii] ${path_tmp[ii]}"; done
 	for ((ii=0;ii<${#pythonpath_tmp[@]};ii++)); do     pythonpath_tmp[ii]=" - [$ii] ${pythonpath_tmp[ii]}"; done
-	
+
 	# Print PATH and PYTHONPATH
 	cat <<- EOF
 
@@ -158,15 +158,18 @@ _pathmod_usage() {
 	   -h  --help                show this help
 	   -v, --version             show pathmod version
 	   -p  --pythonpath          modify PYTHONPATH instead of PATH
-	   -s  --settings            display pathmod settings and the current PATH and PYTHONPATH
+	   -s  --show-path           display the current PATH and PYTHONPATH
 	   -sd --set-path-display    display PATH and PYTHONPATH after each command (OPTIONAL, defaults to false)
 	   -se --set-export          export path after it is set (OPTIONAL, defaults to true)
 	   -sg --set-path-guard      check whether a path is valid before adding it (OPTIONAL, defaults to false)
 
 	Examples:
+		Show the current PATH and PYTHONPATH:
+		$PATHMOD_PROGNAME --show-path
+
 	   Add path to PATH variable:
 	   $PATHMOD_PROGNAME --add <PATH>
-	   
+
 	   Add path to PATH at an index:
 	   $PATHMOD_PROGNAME --add <PATH> --index <INDEX>
 
@@ -216,7 +219,7 @@ _pathmod_add_path() {
 	else
 		local defaultIFS="$IFS"; IFS=$' \t\n'; local path_array=(${PYTHONPATH//:/ }); IFS="$defaultIFS"
 	fi
-	
+
 	# Adjust index if it is out of range
 	local arr_len="${#path_array[@]}"
 	if [[ "$path_index" -lt -1 ]]; then
@@ -232,7 +235,7 @@ _pathmod_add_path() {
 		# Append path if index == -1
 		if [[ "$path_index" == -1 ]]; then
 
-			# Loop through paths the user wants to add 
+			# Loop through paths the user wants to add
 			for path in "${add_paths_array[@]}"; do
 
 				# Check if path exists on PATH
@@ -246,7 +249,7 @@ _pathmod_add_path() {
 					else
 
 						# Append to PATH variable
-						PATH="${PATH:+${PATH}:}$path" 
+						PATH="${PATH:+${PATH}:}$path"
 
 						# The directory is added on the path
 						added+=(" - ${path}")
@@ -254,7 +257,7 @@ _pathmod_add_path() {
 				else
 
 					# The directory was already on the path and thus not added
-					not_added+=(" - ${path}")				
+					not_added+=(" - ${path}")
 				fi
 			done
 
@@ -264,37 +267,37 @@ _pathmod_add_path() {
 			# Loop through paths the user wants to add
 			# NOTE: Done in opposite direction because it is prepended
 			for (( ii=${#add_paths_array[@]}-1 ; ii>=0 ; ii-- )) ; do
-				local path="${add_paths_array[ii]}"				
-				
+				local path="${add_paths_array[ii]}"
+
 				# Check if path exists on PATH
 				if [[ ":$PATH:" != *":$path:"* ]]; then
-					
+
 					# Check if path is valid
 					if [[ ! -e "$path" && "$path_guard" == true ]]; then # Only if path guards are enabled
-					
+
 						# The directory was not added because it was not valid
 						not_valid=(" - ${path}" "${not_valid[@]}")
 					else
 
 						# Prepend path
-						if [[ "$path_index" == 0 ]]; then 
-		
+						if [[ "$path_index" == 0 ]]; then
+
 							# Prepend to PATH variable
 							PATH="$path${PATH:+:${PATH}}"
 						else # Add path at index
-			
+
 							# Add path to PATH variable at index
 							path_array=("${path_array[@]:0:$path_index}" "$path" "${path_array[@]:$path_index:${arr_len[@]}}")
 							add_by_index=true
 						fi
 
 						# The directory is added on the path
-						added=(" - ${path}" "${added[@]}") 
+						added=(" - ${path}" "${added[@]}")
 					fi
 				else
 
 					# The directory was already on the path and thus not added
-					not_added=(" - ${path}" "${not_added[@]}")				
+					not_added=(" - ${path}" "${not_added[@]}")
 				fi
 			done
 		fi
@@ -309,7 +312,7 @@ _pathmod_add_path() {
 		# Append path if index == -1
 		if [[ "$path_index" == -1 ]]; then
 
-			# Loop through paths the user wants to add 
+			# Loop through paths the user wants to add
 			for path in "${add_paths_array[@]}"; do
 
 				# Check if path exists on PYTHONPATH
@@ -323,7 +326,7 @@ _pathmod_add_path() {
 					else
 
 						# Append to PYTHONPATH variable
-						PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}$path" 
+						PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}$path"
 
 						# The directory is added on the path
 						added+=(" - ${path}")
@@ -331,7 +334,7 @@ _pathmod_add_path() {
 				else
 
 					# The directory was already on the path and thus not added
-					not_added+=(" - ${path}")				
+					not_added+=(" - ${path}")
 				fi
 			done
 
@@ -341,37 +344,37 @@ _pathmod_add_path() {
 			# Loop through paths the user wants to add
 			# NOTE: Done in opposite direction because it is prepended
 			for (( ii=${#add_paths_array[@]}-1 ; ii>=0 ; ii-- )) ; do
-				local path="${add_paths_array[ii]}"				
-				
+				local path="${add_paths_array[ii]}"
+
 				# Check if path exists on PYTHONPATH
 				if [[ ":$PYTHONPATH:" != *":$path:"* ]]; then
-					
+
 					# Check if path is valid
 					if [[ ! -e "$path" && "$path_guard" == true ]]; then # Only if path guards are enabled
-					
+
 						# The directory was not added because it was not valid
 						not_valid=(" - ${path}" "${not_valid[@]}")
 					else
 
 						# Prepend path
-						if [[ "$path_index" == 0 ]]; then 
-		
+						if [[ "$path_index" == 0 ]]; then
+
 							# Prepend to PYTHONPATH variable
 							PYTHONPATH="$path${PYTHONPATH:+:${PYTHONPATH}}"
 						else # Add path at index
-			
+
 							# Add path to PYTHONPATH variable at index
 							path_array=("${path_array[@]:0:$path_index}" "$path" "${path_array[@]:$path_index:${arr_len[@]}}")
 							add_by_index=true
 						fi
 
 						# The directory is added on the path
-						added=(" - ${path}" "${added[@]}") 
+						added=(" - ${path}" "${added[@]}")
 					fi
 				else
 
 					# The directory was already on the path and thus not added
-					not_added=(" - ${path}" "${not_added[@]}")				
+					not_added=(" - ${path}" "${not_added[@]}")
 				fi
 			done
 		fi
@@ -381,9 +384,9 @@ _pathmod_add_path() {
 			PYTHONPATH=$(IFS=$':'; echo "${path_array[*]}") # Converting bash array back into a delimited string
 		fi
 	fi
-	
+
 	# Print added paths message
-	if ! [[ "${#added[@]}" -eq 0 ]]; then 
+	if ! [[ "${#added[@]}" -eq 0 ]]; then
 		if [[ "$path_index" -eq 0 ]]; then
 			if [[ "$move_on" == false ]]; then # If moved
 				printf "Paths that were successfully prepended to the $path_type variable:\n"
@@ -412,7 +415,7 @@ _pathmod_add_path() {
 	fi
 
 	# Print not added paths message
-	if ! [[ "${#not_added[@]}" -eq 0 ]]; then 
+	if ! [[ "${#not_added[@]}" -eq 0 ]]; then
 		printf "Paths that were already found on the $path_type variable and were thus not added:\n"
 		printf '%s\n' "${not_added[@]}" | sort -u
 	fi
@@ -429,7 +432,7 @@ _pathmod_add_path() {
 	else
 		return 0 # Paths were added return value
 	fi
-}	
+}
 
 _pathmod_remove_path() {
 	# Removes paths from the PATH or PYTHONPATH variable
@@ -461,7 +464,7 @@ _pathmod_remove_path() {
 
 			# Check if path index was within range
 			if [[ "$index" -lt -1 || "$index" -gt "$arr_len" ]]; then
-				
+
 				# Add invalid array to the not valid array
 				not_valid+=(" - [${index}]")
 			else
@@ -482,7 +485,7 @@ _pathmod_remove_path() {
 				# Check if index is number
 				if [[ "$item" =~ $re ]]; then
 					local index="${item}"
-					
+
 					# Check if index is within range
 					if [[ "$index" -lt -1 || "$index" -gt "$arr_len" ]]; then
 
@@ -547,7 +550,7 @@ _pathmod_remove_path() {
 			if [[ ":$PATH:" == *:"$path":* ]]  ; then
 
 				# Remove all occurrences from PATH variable
-				while [[ ":$PATH:" == *:"$path":* ]] ; do 
+				while [[ ":$PATH:" == *:"$path":* ]] ; do
 
 					# Remove path from PATH variable
 					if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
@@ -558,7 +561,7 @@ _pathmod_remove_path() {
 						PATH=${PATH/%":${path}"/} # delete any instance in the at the end
 					fi
 				done
-				
+
 				# The directory was on the path and is thus removed
 				if [[ "${remove_paths_array_index[ii]}" == false ]]; then
 					removed+=(" - ${path}")
@@ -579,7 +582,7 @@ _pathmod_remove_path() {
 			if [[ ":$PYTHONPATH:" == *:"$path":* ]]  ; then
 
 				# Remove all occurrences from PATH variable
-				while [[ ":$PYTHONPATH:" == *:"$path":* ]] ; do 
+				while [[ ":$PYTHONPATH:" == *:"$path":* ]] ; do
 
 					# Remove path from PATH variable
 					if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
@@ -590,7 +593,7 @@ _pathmod_remove_path() {
 						PYTHONPATH=${PYTHONPATH/%":${path}"/} # delete any instance in the at the end
 					fi
 				done
-				
+
 				# The directory was on the path and is thus removed
 				if [[ "${remove_paths_array_index[ii]}" == false ]]; then
 					removed+=(" - ${path}")
@@ -649,7 +652,7 @@ _pathmod_move_path() {
 	local arr_len="${#path_array[@]}"
 
 	# Check if path was specified as index or as paths
-	read -a opt_arg_array <<< "$@" 
+	read -a opt_arg_array <<< "$@"
 	if [[ "${#opt_arg_array[@]}" -eq 1 ]]; then
 
 		# If specified as index
@@ -663,13 +666,13 @@ _pathmod_move_path() {
 				# Print error
 				printf "$PATHMOD_PROGNAME:${RED}error:${NC} No path was found at index ${index}.\n" >&2
 				return 1
-			else 
+			else
 
 				# Find path at index and add to paths variable
-				paths="${path_array[index]}"				
+				paths="${path_array[index]}"
 			fi
 		else # If input is not a number
-			
+
 			# Split given paths by deliminator (Space or :)
 			local defaultIFS="$IFS"; IFS=$' \t\n'; local opt_arg_array=(${@//:/ }); IFS="$defaultIFS"
 
@@ -686,10 +689,10 @@ _pathmod_move_path() {
 
 						# Print warning
 						printf "$PATHMOD_PROGNAME:${ORANGE}warning:${NC} Index ${index} was ignored as no path was found at this index.\n" >&2
-					else 
+					else
 
 						# Find path at index and add to paths variable
-						paths="${paths}${path_array[index]} "						
+						paths="${paths}${path_array[index]} "
 					fi
 				else
 
@@ -699,7 +702,7 @@ _pathmod_move_path() {
 			done
 		fi
 	else # Multiple paths specified
-		
+
 		# Loop through paths
 		for item in "${opt_arg_array[@]}"; do
 
@@ -714,7 +717,7 @@ _pathmod_move_path() {
 					# Print warning
 					printf "$PATHMOD_PROGNAME:${ORANGE}warning:${NC} Index ${index} was ignored as no path was found at this index.\n" >&2
 
-				else 
+				else
 
 					# Find path at index
 					paths="${paths} ${path_array[index]}"
@@ -739,7 +742,7 @@ _pathmod_move_path() {
 	# Remove paths from PATH or PYTHONPATH
 	_pathmod_remove_path "$paths"
 	remove_retval="$?"
-	
+
 	# Add path at a given index
 	_pathmod_add_path "$paths"
 	move_on=false # Disable move_bool again
@@ -858,13 +861,13 @@ _pathmod_cmdline() {
 			--check)             args="${args}-c ";;
 			--help)              args="${args}-h ";;
 			----pythonpath)      args="${args}-p ";;
-			--settings)		     args="${args}-s ";;
+			--show-path)		     args="${args}-s ";;
 			-se)			     args="${args}-z ";;
 			--set-export)        args="${args}-z ";;
 			-sd)  				 args="${args}-d ";;
 			--set-path-display)  args="${args}-d ";;
 			#pass through anything else
-			*) 
+			*)
 				# Escape options that do not begin with -
 				[[ "${arg:0:1}" == "-"  ]] || delim="\""
 
@@ -906,10 +909,10 @@ _pathmod_cmdline() {
 						printf "%s: path_display boolean set to true.\n" "$PATHMOD_PROGNAME"
 						path_display=true
 					fi
-					;;	
+					;;
 				"false"|"False"|"FALSE"|0)
 
-					# Set path export variable to false					
+					# Set path export variable to false
 					if [[ "$path_display" == false ]]; then
 						printf "%s: path_display boolean already set to false.\n" "$PATHMOD_PROGNAME"
 					else
@@ -925,7 +928,7 @@ _pathmod_cmdline() {
 			# Save values to config file
 			_pathmod_save_config_vars
 			;;
-		e)	
+		e)
 			# Get absolute path and check if it exists
 			abs_path=$(cd $(dirname "$OPTARG") 2>/dev/null && pwd -P)/$(basename "$OPTARG")
 			if [[ -e "$abs_path" ]]; then
@@ -952,10 +955,10 @@ _pathmod_cmdline() {
 						printf "%s: path_guard boolean set to true.\n" "$PATHMOD_PROGNAME"
 						path_guard=true
 					fi
-					;;	
+					;;
 				"false"|"False"|"FALSE"|0)
 
-					# Set path export variable to false					
+					# Set path export variable to false
 					if [[ "$path_guard" == false ]]; then
 						printf "%s: path_guard boolean already set to false.\n" "$PATHMOD_PROGNAME"
 					else
@@ -990,11 +993,11 @@ _pathmod_cmdline() {
 			if [[ "${#path_index_tmp[@]}" -eq 1 ]]; then
 
 				# Split list based on : deliminator
-				local defaultIFS="$IFS"; IFS=$' \t\n'; local path_index_tmp=(${path_index_tmp//:/ }); IFS="$defaultIFS"			
+				local defaultIFS="$IFS"; IFS=$' \t\n'; local path_index_tmp=(${path_index_tmp//:/ }); IFS="$defaultIFS"
 
 				# Check if a list of indexes was given
 				if [[ "${#path_index_tmp[@]}" -eq 1 ]]; then
-					for index in "${path_index_tmp[@]}"; do 
+					for index in "${path_index_tmp[@]}"; do
 
 						# Check if index is number and not smaller than -1
 						if ! [[ "$index" =~ $re ]] ; then
@@ -1014,7 +1017,7 @@ _pathmod_cmdline() {
 					return 1
 				fi
 			else
-				
+
 				# Print error message as a list of indexes is not yet supported
 				printf "$PATHMOD_PROGNAME:${RED}error:${NC} Sorry a list of indexes is not yet supported. Please supply a single index.\n" >&2
 				_pathmod_usage
@@ -1030,7 +1033,7 @@ _pathmod_cmdline() {
 			_list_settings
 			return 0
 			;;
-		v)	
+		v)
 			# Print version
 			echo "v$PATHMOD_VERSION"
 			return 0
@@ -1051,10 +1054,10 @@ _pathmod_cmdline() {
 						printf "%s: path_export boolean set to true.\n" "$PATHMOD_PROGNAME"
 						path_export=true
 					fi
-					;;	
+					;;
 				"false"|"False"|"FALSE"|0)
 
-					# Set path export variable to false					
+					# Set path export variable to false
 					if [[ "$path_export" == false ]]; then
 						printf "%s: path_export boolean already set to false.\n" "$PATHMOD_PROGNAME"
 					else
@@ -1100,7 +1103,7 @@ _pathmod_cmdline() {
 		p)
 			python_path=true
 			;;
-		r)	
+		r)
 
 			# Check if GETARG is option
 			_pathmod_getarg_validate "$OPTARG"
@@ -1109,7 +1112,7 @@ _pathmod_cmdline() {
 			# Set option boolean
 			opt_r=true
 			;; # Main code in next getopts switch
-		:)	
+		:)
 			# Throw no argument given error
 		 	printf "$PATHMOD_PROGNAME:${RED}error:${NC} option requires an argument -- %s\n" "$OPTARG"
 			_pathmod_usage
@@ -1133,7 +1136,7 @@ _pathmod_cmdline() {
 	# Check independent options and perform path modification actions.
 	unset OPTIND # Needed since we source the script
 	while getopts ":a:c:d:e:g:i:m:r:z:hpsv" OPTION
-	do 
+	do
 		case "$OPTION" in
 		a)
 		 	# Add path
@@ -1160,7 +1163,7 @@ _pathmod_cmdline() {
 		r)
 			# Remove path
 			_pathmod_remove_path "$OPTARG"
-			
+
 			# Check if add was successful
 			if [[ "$?" -eq 1 ]]; then nothing_changed=true; fi
 			break
@@ -1191,7 +1194,7 @@ _pathmod_cmdline() {
 			;; # Already handled by first getopts switch
 		z)
 			;; # Already handled by first getopts switch
-		:)	
+		:)
 			# Catch options that can have an empty argument if an index is specified
 		 	printf "$PATHMOD_PROGNAME:${RED}error:${NC} option requires an argument -- %s\n" "$OPTARG"
 			_pathmod_usage
@@ -1223,7 +1226,7 @@ _pathmod_cmdline() {
 	if [[ "$path_display" == true && \
 	      (( "$opt_a" == true || "$opt_r" == true ) || ( "$opt_m" == true && "$move_index_warning" == false )) \
 	]]; then
-		_list_path		
+		_list_path
 	fi
 
 	# Display warning if index was specified but no path was added or moved
