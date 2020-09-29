@@ -1,5 +1,6 @@
 # Path modification bash script
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/717fef84f7d447728227ee0ca417f9fa)](https://app.codacy.com/gh/rickstaa/.pathmod?utm_source=github.com&utm_medium=referral&utm_content=rickstaa/.pathmod&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/231df26fd0b3457c94a165f0cb832d61)](https://www.codacy.com/gh/rickstaa/.pathmod/dashboard?utm_source=github.com&utm_medium=referral&utm_content=rickstaa/.pathmod&utm_campaign=Badge_Grade)
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/pathmod/pulse)
 [![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](contributing.md)
